@@ -17,48 +17,51 @@ var endpoint = configuration["OpenAI:Endpoint"];
 var apiKey = configuration["OpenAI:ApiKey"];
 
 // Create a kernel with Azure OpenAI chat completion
-var builder = Kernel.CreateBuilder().AddOpenAIChatCompletion(modelId, apiKey, null, null, null);
+var builder = Kernel.CreateBuilder()
+.AddOpenAIChatCompletion(modelId, apiKey, null, null, null);
 
 // Add enterprise components
-//builder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
+builder.Services.AddLogging(services => 
+services.AddConsole().SetMinimumLevel(LogLevel.Warning));
 
 // Build the kernel
 Kernel kernel = builder.Build();
-// var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
-// // Add a plugin (the LightsPlugin class is defined below)
-// kernel.Plugins.AddFromType<LightsPlugin>("Lights");
+// Add a plugin (the LightsPlugin class is defined below)
+//kernel.Plugins.AddFromType<LightsPlugin>("Lights");
 
-// // Enable planning
-// OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new() 
-// {
-//     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
-// };
+// Enable planning
+OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new() 
+{
+    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+};
 
 // // Create a history store the conversation
 var history = new ChatHistory();
 
-// Initiate a back-and-forth chat
 string? userInput;
-do {
-    // Collect user input
+while(true) {
     Console.Write("User > ");
     userInput = Console.ReadLine();
+    if (string.IsNullOrEmpty(userInput))
+        break;
 
-    // Add user input
-    //history.AddUserMessage(userInput);
+    history.AddUserMessage(userInput);
 
-    var result = await kernel.InvokePromptAsync(userInput);
+    //var result = await kernel.InvokePromptAsync(userInput);
 
-    // // Get the response from the AI
-    // var result = await chatCompletionService.GetChatMessageContentAsync(
-    //     history,
-    //     executionSettings: openAIPromptExecutionSettings,
-    //     kernel: kernel);
+    // Get the response from the AI
+    var result = await chatCompletionService.GetChatMessageContentAsync(
+        history,
+        executionSettings: openAIPromptExecutionSettings,
+        kernel: kernel);
+
+    // Add the message from the agent to the chat history
+    history.AddMessage(result.Role, result.Content ?? string.Empty);
 
     // Print the results
     Console.WriteLine("Assistant > " + result);
+    Console.WriteLine("==================================================");
 
-    // Add the message from the agent to the chat history
-    //history.AddMessage(result.Role, result.Content ?? string.Empty);
-} while (userInput is not null);
+}

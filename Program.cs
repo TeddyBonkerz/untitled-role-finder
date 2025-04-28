@@ -9,6 +9,8 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .AddUserSecrets<Program>()
     .Build();
 
 // Populate values from your OpenAI deployment
@@ -17,18 +19,19 @@ var endpoint = configuration["OpenAI:Endpoint"];
 var apiKey = configuration["OpenAI:ApiKey"];
 
 // Create a kernel with Azure OpenAI chat completion
-var builder = Kernel.CreateBuilder()
-.AddOpenAIChatCompletion(modelId, apiKey, null, null, null);
+var builder = Kernel.CreateBuilder().AddOpenAIChatCompletion(modelId, apiKey, null, null, null);
 
 // Add enterprise components
-builder.Services.AddLogging(services => 
-services.AddConsole().SetMinimumLevel(LogLevel.Warning));
+// builder.Services.AddLogging(services => 
+// services.AddConsole().SetMinimumLevel(LogLevel.Warning));
 
 // Build the kernel
 Kernel kernel = builder.Build();
 var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
-// Add a plugin (the LightsPlugin class is defined below)
+// Add plugins
+var puppeteerPlugin = await PuppeteerPlugin.CreateAsync();
+kernel.Plugins.AddFromObject(puppeteerPlugin, "PuppeteerPlugin");
 kernel.Plugins.AddFromType<JobsPlugin>("Jobs");
 
 // Enable planning
@@ -37,7 +40,7 @@ OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new() 
     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
 };
 
-// // Create a history store the conversation
+// Create a history store the conversation
 var history = new ChatHistory();
 
 string? userInput;

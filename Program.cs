@@ -4,7 +4,6 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 
 
@@ -12,56 +11,59 @@ namespace untitled_role_finder;
 
 public class Program
 {
-    public static async Task Main(string[] args)
-    {
-        // Load configuration from appsettings.json and environment variables
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .AddUserSecrets<Program>()
-            .Build();
+    public static void Main(string[] args) => BuildAvaloniaApp()
+        .StartWithClassicDesktopLifetime(args);
 
-        // Populate values from your OpenAI deployment
-        var modelId = configuration["OpenAI:ModelId"];
-        var endpoint = configuration["OpenAI:Endpoint"];
-        var apiKey = configuration["OpenAI:ApiKey"];
-
-        // Create a kernel with Azure OpenAI chat completion
-        var builder = Kernel.CreateBuilder().AddOpenAIChatCompletion(modelId, apiKey, null, null, null);
-
-        // Add enterprise components
-        // builder.Services.AddLogging(services => 
-        // services.AddConsole().SetMinimumLevel(LogLevel.Warning));
-
-        // Build the kernel
-        Kernel kernel = builder.Build();
-        var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
-
-        // Add plugins
-        var puppeteerPlugin = await PuppeteerPlugin.CreateAsync();
-        kernel.Plugins.AddFromObject(puppeteerPlugin, "PuppeteerPlugin");
-        kernel.Plugins.AddFromType<JobsPlugin>("Jobs");
-
-        // Enable planning
-        OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new() 
-        {
-            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
-        };
-
-        var app = AppBuilder.Configure<App>()
+    // Avalonia configuration, don't remove; also used by visual designer.
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .UseReactiveUI()
-            .SetupWithClassicDesktopLifetime(args);
 
-        if (app.Instance is App avaloniaApp)
-        {
-            avaloniaApp.KernelInstance = kernel;
-            avaloniaApp.ChatServiceInstance = chatCompletionService;
-        }
+            .LogToTrace();
 
-        Avalonia.Controls.AppBuilder.StartWithClassicDesktopLifetime<App>(args);
-    }
+    // public static async Task Main(string[] args)
+    // {
+    //     // Load configuration from appsettings.json and environment variables
+    //     var configuration = new ConfigurationBuilder()
+    //         .SetBasePath(Directory.GetCurrentDirectory())
+    //         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    //         .AddEnvironmentVariables()
+    //         .AddUserSecrets<Program>()
+    //         .Build();
+
+    //     // Populate values from your OpenAI deployment
+    //     var modelId = configuration["OpenAI:ModelId"];
+    //     var endpoint = configuration["OpenAI:Endpoint"];
+    //     var apiKey = configuration["OpenAI:ApiKey"];
+
+    //     // Create a kernel with Azure OpenAI chat completion
+    //     var builder = Kernel.CreateBuilder().AddOpenAIChatCompletion(modelId, apiKey, null, null, null);
+
+    //     // Add enterprise components
+    //     // builder.Services.AddLogging(services => 
+    //     // services.AddConsole().SetMinimumLevel(LogLevel.Warning));
+
+    //     // Build the kernel
+    //     Kernel kernel = builder.Build();
+    //     var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+
+    //     // Add plugins
+    //     var puppeteerPlugin = await PuppeteerPlugin.CreateAsync();
+    //     kernel.Plugins.AddFromObject(puppeteerPlugin, "PuppeteerPlugin");
+    //     // kernel.Plugins.AddFromType<JobsPlugin>("Jobs");
+
+    //     // Enable planning
+    //     OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new() 
+    //     {
+    //         FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+    //     };
+
+    //     var appBuilder = AppBuilder.Configure<App>()
+    //         .UsePlatformDetect()
+    //         .UseReactiveUI();
+
+    //     appBuilder.StartWithClassicDesktopLifetime(args);
+    // }
 }
 
 // // Create a history store the conversation

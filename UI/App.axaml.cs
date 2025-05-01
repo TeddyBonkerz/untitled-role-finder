@@ -1,14 +1,13 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace untitled_role_finder;
 
 public partial class App : Application
 {
-    public Kernel? KernelInstance { get; set; }
-    public IChatCompletionService? ChatServiceInstance { get; set; }
-    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -18,8 +17,7 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // You need to set KernelInstance and ChatServiceInstance before this is called!
-            desktop.MainWindow = new MainWindow(KernelInstance!, ChatServiceInstance!);
+            desktop.MainWindow = new MainWindow();
         }
 
         base.OnFrameworkInitializationCompleted();

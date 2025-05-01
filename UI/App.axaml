@@ -2,6 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="untitled_role_finder.App">
   <Application.Styles>
-    <FluentTheme Mode="Light"/>
+    <FluentTheme />
   </Application.Styles>
+
+  <Application.Resources>
+    
+  </Application.Resources>
 </Application>

@@ -8,30 +8,37 @@ namespace untitled_role_finder;
 
 public partial class MainWindow : Window
 {
-    private readonly Kernel _kernel;
-    private readonly IChatCompletionService _chatService;
-    private readonly ChatHistory _history = new();
+    // private readonly Kernel _kernel;
+    // private readonly IChatCompletionService _chatService;
+    // private readonly ChatHistory _history = new();
 
-    public MainWindow(Kernel kernel, IChatCompletionService chatService)
+    public MainWindow() : base()
     {
         InitializeComponent();
-        _kernel = kernel;
-        _chatService = chatService;
-        SendButton.Click += SendButton_Click;
     }
 
-    private async void SendButton_Click(object? sender, RoutedEventArgs e)
-    {
-        var userInput = InputBox.Text;
-        if (!string.IsNullOrWhiteSpace(userInput))
-        {
-            _history.AddUserMessage(userInput);
-            ChatBox.Text += $"User: {userInput}\n";
-            InputBox.Text = "";
+    // public MainWindow(Kernel kernel, IChatCompletionService chatService) : this()
+    // {
+    //     _kernel = kernel;
+    //     _chatService = chatService;
+    //     ChatBox = this.FindControl<TextBox>("ChatBox");
+    //     InputBox = this.FindControl<TextBox>("InputBox");
+    //     SendButton = this.FindControl<Button>("SendButton");
+    //     SendButton.Click += SendButton_Click;
+    // }
 
-            var result = await _chatService.GetChatMessageContentAsync(_history, kernel: _kernel);
-            _history.AddMessage(result.Role, result.Content ?? "");
-            ChatBox.Text += $"Assistant: {result.Content}\n";
-        }
-    }
+    // private async void SendButton_Click(object? sender, RoutedEventArgs e)
+    // {
+    //     var userInput = InputBox.Text;
+    //     if (!string.IsNullOrWhiteSpace(userInput))
+    //     {
+    //         _history.AddUserMessage(userInput);
+    //         ChatBox.Text += $"User: {userInput}\n";
+    //         InputBox.Text = "";
+
+    //         var result = await _chatService.GetChatMessageContentAsync(_history, kernel: _kernel);
+    //         _history.AddMessage(result.Role, result.Content ?? "");
+    //         ChatBox.Text += $"Assistant: {result.Content}\n";
+    //     }
+    // }
 }

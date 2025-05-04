@@ -1,17 +1,19 @@
 <Window
-        x:Class="untitled_role_finder.MainWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Role Finder Chat">
+    x:Class="untitled_role_finder.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:untitled_role_finder.ViewModels"
+    Title="Role Finder Chat">
+
+        <Window.DataContext>
+                <vm:MainWindowViewModel />
+        </Window.DataContext>
 
         <Grid ColumnDefinitions="Auto, *">
                 <Border Grid.Column="0" Padding="10">
                         <Grid RowDefinitions="100, Auto">
                                 <StackPanel Grid.Row="0">
-                                        <TextBlock
-                                                Margin="10"
-                                                FontSize="24"
-                                                Text="Role Finder Chat" />
+                                        <TextBlock Margin="10" FontSize="24" Text="Role Finder Chat" />
                                 </StackPanel>
                                 <ScrollViewer Grid.Row="1">
                                         <ListBox>
@@ -29,32 +31,35 @@
                                 </ScrollViewer>
                         </Grid>
                 </Border>
-                <Grid
-                        Background="#000000"
-                        Grid.Column="1"
-                        Margin="10"
-                        RowDefinitions="*,Auto">
-                        <ItemsControl x:Name="ChatMessagesPanel" Grid.Row="0">
+                <Grid Grid.Column="1" Margin="10" Background="#000000" RowDefinitions="*,Auto">
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding Messages}">
                                 <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                                 <Border
-                                                        Margin="0,4"
-                                                        Padding="8"
-                                                        HorizontalAlignment="{Binding Alignment}"
-                                                        Background="#0000FF"
-                                                        CornerRadius="8">
+                                                    Margin="0,4"
+                                                    Padding="8"
+                                                    HorizontalAlignment="{Binding Alignment}"
+                                                    Background="#0000FF"
+                                                    CornerRadius="8">
                                                         <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
                                                 </Border>
                                         </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBox
-                                x:Name="ConversationInput"
-                                Grid.Column="1"
-                                Height="40"
-                                Margin="20"
-                                VerticalAlignment="Bottom"
-                                Watermark="Type your message to start a conversation..." />
+                        <StackPanel Grid.Row="1" Margin="20,0,20,20" Orientation="Horizontal">
+                                <TextBox
+                                    Width="300"
+                                    Height="40"
+                                    VerticalAlignment="Bottom"
+                                    Text="{Binding UserInput, Mode=TwoWay}"
+                                    Watermark="Type your message to start a conversation..." />
+                                <Button
+                                    Height="40"
+                                    Margin="10,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Command="{Binding SendMessageCommand}"
+                                    Content="Send" />
+                        </StackPanel>
                 </Grid>
         </Grid>
 </Window>
